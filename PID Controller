@@ -1,0 +1,49 @@
+class PIDController:
+    def __init__(self, kp, ki, kd, setpoint):
+        """
+        Initialize the PID controller with the given parameters.
+        
+        :param kp: Proportional gain
+        :param ki: Integral gain
+        :param kd: Derivative gain
+        :param setpoint: Desired target value
+        """
+        self.kp = kp
+        self.ki = ki
+        self.kd = kd
+        self.setpoint = setpoint
+        self.prev_error = 0
+        self.integral = 0
+
+    def update(self, measurement, dt):
+        """
+        Update the PID controller with the new measurement and time step.
+        
+        :param measurement: Current value to be controlled
+        :param dt: Time step since the last update
+        :return: Control output
+        """
+        error = self.setpoint - measurement
+        self.integral += error * dt
+        derivative = (error - self.prev_error) / dt
+
+        # Calculate the control output
+        output = (self.kp * error) + (self.ki * self.integral) + (self.kd * derivative)
+
+        # Save the current error for the next derivative calculation
+        self.prev_error = error
+
+        return output
+
+# Example usage
+if __name__ == '__main__':
+    pid = PIDController(kp=1.0, ki=0.1, kd=0.05, setpoint=100)
+    
+    # Simulated process
+    measurement = 90  # Initial measurement
+    dt = 1  # Time step in seconds
+
+    for _ in range(10):  # Simulate 10 time steps
+        control = pid.update(measurement, dt)
+        measurement += control * dt  # Update measurement based on control output
+        print(f"Control Output: {control}, New Measurement: {measurement}")
